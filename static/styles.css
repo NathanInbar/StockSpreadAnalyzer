@@ -1,0 +1,27 @@
+body {
+    background-color: #2e3440;
+}
+h1 {
+    text-align: center;
+}
+h4 {
+    margin-bottom: 5px;
+}
+
+h1,div, input {
+    color: #eceff4;
+}
+div, form {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+input {
+    background-color: #2e3440;
+    border: 1px dashed #eceff4;
+    border-radius: 30px;
+    margin-bottom: 1rem;
+}
