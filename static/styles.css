@@ -25,3 +25,13 @@ input {
     border-radius: 30px;
     margin-bottom: 1rem;
 }
+
+table {
+    border: 1px dashed #eceff4;
+    color: #eceff4;
+    border-collapse: collapse;
+    text-align: center;
+}
+td, th {
+    border: 1px dashed #eceff4;
+}

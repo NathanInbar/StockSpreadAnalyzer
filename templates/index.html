@@ -8,18 +8,36 @@
         <h1>Stock Spread Analyzer</h1>
         <div>
             <form action="/" method="post">
-                <h4>Symbol</h4>
-                <input type="text" name="symbol">
-                <h4>Input 2</h4>
-                <input type="text">
-                <h4>Input 3</h4>
-                <input type="text">
+                <h4>Stock Ticker</h4>
+                <input type="text" name="symbol" value="TSLA">
+                <h4>Start Date</h4>
+                <input type="date" name="startdate" value="2019-11-15">
+                <h4>End Date</h4>
+                <input type="date" name="dt"  value="2019-11-20">
+                <h4>Swing Duration (days)</h4>
+                <input type="number" name="swingduration" value="999">
                 <button type="submit">Submit</button>
             </form>
         </div>
         <div>
             <h4>Result:</h4>
-            <p>=={{result}}==</p>
+            <br/>
+            <table>
+                <tr>
+                    <th>Highest Price</th>
+                    <th>Lowest Price</th>
+                    <th>Swing</th>
+                    <th>Swing %</th>
+                </tr>
+                <tr>
+                    <td>1{{highest_price}}</td>
+                    <td>2{{lowest_price}}</td>
+                    <td>3{{swing}}</td>
+                    <td>4{{swing_percent}}</td>
+                </tr>
+
+            </table>
+
         </div>
     </body>
 </html>
