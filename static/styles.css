@@ -24,6 +24,7 @@ input {
     border: 1px dashed #eceff4;
     border-radius: 30px;
     margin-bottom: 1rem;
+    text-align: center;
 }
 
 table {
@@ -34,4 +35,11 @@ table {
 }
 td, th {
     border: 1px dashed #eceff4;
+}
+
+#loading {
+    width: 24px !important;
+    height: 24px !important;
+    display: none;
+    cursor: wait !important;
 }

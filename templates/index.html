@@ -9,16 +9,17 @@
         <div>
             <form action="/" method="post">
                 <h4>Stock Ticker</h4>
-                <input type="text" name="symbol" value="TSLA">
+                <input type="text" name="symbol">
                 <h4>Start Date</h4>
-                <input type="date" name="startdate" value="2019-11-15">
+                <input type="date" name="startdate">
                 <h4>End Date</h4>
-                <input type="date" name="dt"  value="2019-11-20">
+                <input type="date" name="dt">
                 <h4>Swing Duration (days)</h4>
-                <input type="number" name="swingduration" value="999">
-                <button type="submit">Submit</button>
+                <input type="number" name="swingduration">
+                <button type="submit" onclick="playLoadingGif()">Submit</button>
             </form>
         </div>
+        <div id="loading"><img src="static/loading.gif" alt=""/></div>
         <div>
             <h4>Result:</h4>
             <br/>
@@ -28,16 +29,23 @@
                     <th>Lowest Price</th>
                     <th>Swing</th>
                     <th>Swing %</th>
+                    <th>Dates</th>
                 </tr>
                 <tr>
-                    <td>1{{highest_price}}</td>
-                    <td>2{{lowest_price}}</td>
-                    <td>3{{swing}}</td>
-                    <td>4{{swing_percent}}</td>
+                    <td>{{highest_price}}</td>
+                    <td>{{lowest_price}}</td>
+                    <td>{{swing}}</td>
+                    <td>{{swing_percent}}</td>
+                    <td>{{date}}</td>
                 </tr>
 
             </table>
 
         </div>
+        <script>
+            function playLoadingGif(){
+                document.getElementById("loading").style.display = "block";   
+            }
+        </script>
     </body>
 </html>
