@@ -5,10 +5,7 @@ from datetime import date
 from alpha_vantage.timeseries import TimeSeries
 import numpy as np
 from math import trunc
-#import matplotlib.pyplot as plt
 import json
-
-#relavant docs: https://www.alphavantage.co/documentation/#intraday
 
 app = Flask(__name__)
 
@@ -19,23 +16,15 @@ ts = TimeSeries(key=API_KEY, output_format="pandas")
 
 def split_dataframe(df, chunk_size):
     chunks = list()
-    # num_chunks = len(df) // chunk_size+1
-    # for i in range(num_chunks):
-    #     chunks.append(df[i*chunk_size:(i+1)*chunk_size])
 
     for i in range(len(df)):
-        #print(i)
-        #try:
-            #try to append i through i+chunk
+
         if len(df[i:i+chunk_size]) is 5:
             chunks.append(df[i:i+chunk_size])
         else:
             chunks.append(df[i:])
             break;
-        #except IndexError:
-            #if index is out of bounds append a chunk that covers the rest of the dataframe
-            #chunks.append(df[i:])
-    #print(chunks)
+
     return chunks
 
 def truncate(number, digits) -> float:
@@ -63,11 +52,7 @@ def index():
         #start and end date converted into readable format for dataframe truncation
         strt = date(startdate[0],startdate[1],startdate[2])
         end = date(enddate[0],enddate[1],enddate[2])
-        print(f"S: {strt} \nE: {end}")
-        #will hold the high/low points of the data slices
 
-
-    #try:
         #load all of the stock data into the pandas dataframe
         data, meta_data = ts.get_daily_adjusted(symbol=symbol,outputsize="full")
         #truncate the dataframe to hold only the dat between start and end date
@@ -82,25 +67,13 @@ def index():
             if current_swing > largest_swing:
                 largest_swing = current_swing
                 largest_swing_df = df
-                print("LARGEST:",largest_swing_df)
-            #highs.append(df['4. close'].max())
-            #lows.append(df['4. close'].min())
 
-    #except Exception as e:
-        #print(f'error:{e}')
-        #return render_template("index.html", highest_price="ERR")
-
-        #print(f"\nD:{data}")
-        #print(f"H: {highs} \nL: {lows}")
-        #calculate values to be returned to index.html
         highest_price = largest_swing_df['4. close'].max()
         lowest_price = largest_swing_df['4. close'].min()
         swing = truncate(largest_swing, 2)
         swing_percent = str.join('',f'{truncate(((1-(lowest_price/highest_price))*100), 2)}%')
         swing_date=f"{largest_swing_df.index[-1].date()} - {largest_swing_df.index[0].date()}"
-        #date=
 
         return render_template("index.html", highest_price=highest_price, lowest_price=lowest_price, swing=swing, swing_percent=swing_percent, date=swing_date)        
 
-
-app.run(debug=True)
+app.run()
