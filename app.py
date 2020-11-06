@@ -31,7 +31,7 @@ def truncate(number, digits) -> float:
     stepper = 10.0 ** digits
     return trunc(stepper * number) / stepper
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/trading", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
         return render_template("index.html", highest_price="-", lowest_price="-", swing="-", swing_percent="-")
