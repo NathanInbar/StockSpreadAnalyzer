@@ -2,3 +2,5 @@ flask
 flask-session
 alpha_vantage
 matplotlib
+PyQtWebEngine
+git+git//github.com/widdershin/flask-desktop.git
