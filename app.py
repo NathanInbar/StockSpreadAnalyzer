@@ -44,38 +44,45 @@ def index():
         startdate = request.form.get('startdate').split('-')
         enddate = request.form.get('dt').split('-')
         swingduration = request.form.get('swingduration')
+        try:
+            #convert start/end dates into integers
+            for i in range(0,len(startdate)):
+                startdate[i] = int(startdate[i])
+            for i in range(0,len(enddate)):
+                enddate[i] = int(enddate[i])
+            #start and end date converted into readable format for dataframe truncation
+            strt = date(startdate[0],startdate[1],startdate[2])
+            end = date(enddate[0],enddate[1],enddate[2])
+        except Exception as e:
+            return render_template("error.html", error=f"Error parsing dates...{e}")
 
-        #convert start/end dates into integers
-        for i in range(0,len(startdate)):
-            startdate[i] = int(startdate[i])
-        for i in range(0,len(enddate)):
-            enddate[i] = int(enddate[i])
+        try:
+            #load all of the stock data into the pandas dataframe
+            data, meta_data = ts.get_daily_adjusted(symbol=symbol,outputsize="full")
+            #truncate the dataframe to hold only the dat between start and end date
+            data = data.truncate(before=strt, after=end)
+            #slice the dataframe into chunks of the request size (given in days) after reversing the order
+            sliced_data = split_dataframe(data, int(swingduration))
+            #find the high/lows of those chunks
+        except Exception as e:
+            return render_template("error.html", error=f"Error loading dataframe...{e}")
 
-        #start and end date converted into readable format for dataframe truncation
-        strt = date(startdate[0],startdate[1],startdate[2])
-        end = date(enddate[0],enddate[1],enddate[2])
+        try:    
+            largest_swing = -1
+            largest_swing_df = None
+            for df in sliced_data:
+                current_swing = df['4. close'].max() - df['4. close'].min()
+                if current_swing > largest_swing:
+                    largest_swing = current_swing
+                    largest_swing_df = df
 
-        #load all of the stock data into the pandas dataframe
-        data, meta_data = ts.get_daily_adjusted(symbol=symbol,outputsize="full")
-        #truncate the dataframe to hold only the dat between start and end date
-        data = data.truncate(before=strt, after=end)
-        #slice the dataframe into chunks of the request size (given in days) after reversing the order
-        sliced_data = split_dataframe(data, int(swingduration))
-        #find the high/lows of those chunks
-        largest_swing = -1
-        largest_swing_df = None
-        for df in sliced_data:
-            current_swing = df['4. close'].max() - df['4. close'].min()
-            if current_swing > largest_swing:
-                largest_swing = current_swing
-                largest_swing_df = df
-
-        highest_price = largest_swing_df['4. close'].max()
-        lowest_price = largest_swing_df['4. close'].min()
-        swing = truncate(largest_swing, 2)
-        swing_percent = str.join('',f'{truncate(((1-(lowest_price/highest_price))*100), 2)}%')
-        swing_date=f"{largest_swing_df.index[-1].date()} - {largest_swing_df.index[0].date()}"
-
+            highest_price = largest_swing_df['4. close'].max()
+            lowest_price = largest_swing_df['4. close'].min()
+            swing = truncate(largest_swing, 2)
+            swing_percent = str.join('',f'{truncate(((1-(lowest_price/highest_price))*100), 2)}%')
+            swing_date=f"{largest_swing_df.index[-1].date()} - {largest_swing_df.index[0].date()}"
+        except Exception as e:
+            return render_template("error.html", error=f"Error calculating swing data...{e}")
         return render_template("index.html", highest_price=highest_price, lowest_price=lowest_price, swing=swing, swing_percent=swing_percent, date=swing_date)        
 
 if __name__ == "__main__":
