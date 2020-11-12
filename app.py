@@ -1,15 +1,15 @@
 from flask import Flask, render_template, request
-from webui import WebUI
+#from webui import WebUI
 from flask_session import Session
 from api_key import API_KEY
 from datetime import date
 from alpha_vantage.timeseries import TimeSeries
-import numpy as np
+#import numpy as np
 from math import trunc
-import json
+#import json
 
 app = Flask(__name__)
-ui = WebUI(app)
+#ui = WebUI(app)
 
 app.config["SESSION_PERMANENT"] = False
 Session(app)
@@ -36,7 +36,7 @@ def truncate(number, digits) -> float:
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
-        return render_template("index.html", highest_price="-", lowest_price="-", swing="-", swing_percent="-")
+        return render_template("index.html", highest_price="-", lowest_price="-", swing="-", swing_percent="-", date="-")
 
     if request.method == "POST":
         #get the form values
@@ -79,4 +79,4 @@ def index():
         return render_template("index.html", highest_price=highest_price, lowest_price=lowest_price, swing=swing, swing_percent=swing_percent, date=swing_date)        
 
 if __name__ == "__main__":
-    ui.run()
+    app.run()
