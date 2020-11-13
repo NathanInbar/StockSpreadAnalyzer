@@ -95,4 +95,4 @@ def index():
     return render_template("index.html", highest_price=highest_price, lowest_price=lowest_price, swing=swing, swing_percent=swing_percent, date_range=date_range, date_high=swing_date_high, date_low=swing_date_low)        
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
