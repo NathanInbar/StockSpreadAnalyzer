@@ -17,16 +17,20 @@ Session(app)
 ts = TimeSeries(key=API_KEY, output_format="pandas")
 
 def split_dataframe(df, chunk_size):
+    """
+    splits a pandas dataframe into a list of sub-dataframes by size of chunk_size
+    """
+    df = df.iloc[::-1] #reverse the dataframe
+
     chunks = list()
+    for i in range(len(df)): #for amount of days in df
 
-    for i in range(len(df)):
-
-        if len(df[i:i+chunk_size]) is 5:
+        if len(df[i:i+chunk_size]) is chunk_size:
             chunks.append(df[i:i+chunk_size])
         else:
             chunks.append(df[i:])
             break;
-
+    #print(chunks)
     return chunks
 
 def truncate(number, digits) -> float:
@@ -36,7 +40,7 @@ def truncate(number, digits) -> float:
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
-        return render_template("index.html", highest_price="-", lowest_price="-", swing="-", swing_percent="-", date="-")
+        return render_template("index.html", highest_price="-", lowest_price="-", swing="-", swing_percent="-", date_range="-", date_high="-", date_low="-")
 
     if request.method == "POST":
         #get the form values
@@ -64,6 +68,7 @@ def index():
             #slice the dataframe into chunks of the request size (given in days) after reversing the order
             sliced_data = split_dataframe(data, int(swingduration))
             #find the high/lows of those chunks
+
         except Exception as e:
             return render_template("error.html", error=f"Error loading dataframe...{e}")
 
@@ -76,14 +81,18 @@ def index():
                     largest_swing = current_swing
                     largest_swing_df = df
 
+            
+
             highest_price = largest_swing_df['4. close'].max()
             lowest_price = largest_swing_df['4. close'].min()
             swing = truncate(largest_swing, 2)
             swing_percent = str.join('',f'{truncate(((1-(lowest_price/highest_price))*100), 2)}%')
-            swing_date=f"{largest_swing_df.index[-1].date()} - {largest_swing_df.index[0].date()}"
+            date_range = f"{sliced_data[0].index[0].date()} to {sliced_data[-1].index[-1].date()}"
+            swing_date_high = largest_swing_df.idxmax()['4. close'].date()
+            swing_date_low = largest_swing_df.idxmin()['4. close'].date()
         except Exception as e:
             return render_template("error.html", error=f"Error calculating swing data...{e}")
-        return render_template("index.html", highest_price=highest_price, lowest_price=lowest_price, swing=swing, swing_percent=swing_percent, date=swing_date)        
+    return render_template("index.html", highest_price=highest_price, lowest_price=lowest_price, swing=swing, swing_percent=swing_percent, date_range=date_range, date_high=swing_date_high, date_low=swing_date_low)        
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
