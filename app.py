@@ -40,7 +40,10 @@ def truncate(number, digits) -> float:
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
-        return render_template("index.html", highest_price="-", lowest_price="-", swing="-", swing_percent="-", date_range="-", date_high="-", date_low="-")
+        try:
+            return render_template("index.html", highest_price="-", lowest_price="-", swing="-", swing_percent="-", date_range="-", date_high="-", date_low="-")
+        except:
+            return render_template("error.html", error="Error getting index.html")
 
     if request.method == "POST":
         #get the form values
@@ -48,6 +51,13 @@ def index():
         startdate = request.form.get('startdate').split('-')
         enddate = request.form.get('dt').split('-')
         swingduration = request.form.get('swingduration')
+        
+        #checks for empty form data
+        if (symbol is '') or (swingduration is ''):
+            return render_template("error.html",error=f"Got empty form data.")
+        for x in range(3):
+            if (startdate[x] is '') or (enddate[x] is ''):
+                return render_template("error.html",error=f"Got empty date data.")
         try:
             #convert start/end dates into integers
             for i in range(0,len(startdate)):
@@ -57,20 +67,22 @@ def index():
             #start and end date converted into readable format for dataframe truncation
             strt = date(startdate[0],startdate[1],startdate[2])
             end = date(enddate[0],enddate[1],enddate[2])
-        except Exception as e:
-            return render_template("error.html", error=f"Error parsing dates...{e}")
+        except:
+            return render_template("error.html", error=f"Error parsing dates... Invalid date format?")
 
         try:
             #load all of the stock data into the pandas dataframe
             data, meta_data = ts.get_daily_adjusted(symbol=symbol,outputsize="full")
+        except ValueError:
+            return render_template("error.html", error=f"No data for ticker: '{symbol}'. Either the symbol doesn't exist, or the API does not support it.")
+        try:
             #truncate the dataframe to hold only the dat between start and end date
             data = data.truncate(before=strt, after=end)
             #slice the dataframe into chunks of the request size (given in days) after reversing the order
             sliced_data = split_dataframe(data, int(swingduration))
-            #find the high/lows of those chunks
-
-        except Exception as e:
-            return render_template("error.html", error=f"Error loading dataframe...{e}")
+        except:
+            return render_template("error.html", error="error parsing API data into dataframe. This is a bug.")
+        #find the high/lows of those chunks
 
         try:    
             largest_swing = -1
@@ -91,8 +103,8 @@ def index():
             swing_date_high = largest_swing_df.idxmax()['4. close'].date()
             swing_date_low = largest_swing_df.idxmin()['4. close'].date()
         except Exception as e:
-            return render_template("error.html", error=f"Error calculating swing data...{e}")
+            return render_template("error.html", error=f"Error calculating swing data. This is a bug.{e}")
     return render_template("index.html", highest_price=highest_price, lowest_price=lowest_price, swing=swing, swing_percent=swing_percent, date_range=date_range, date_high=swing_date_high, date_low=swing_date_low)        
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
